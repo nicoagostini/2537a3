@@ -32,7 +32,7 @@ function applyDifficultySettings() {
   }
 }
 
-function shuffleArray(array) {
+function shuffleCardsPosition(array) {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [array[i], array[j]] = [array[j], array[i]];
@@ -86,7 +86,7 @@ async function startup() {
       allPokemonForGame.push(pokemon, pokemon);
     });
 
-    allPokemonForGame = shuffleArray(allPokemonForGame);
+    allPokemonForGame = shuffleCardsPosition(allPokemonForGame);
 
     allPokemonForGame.forEach((pokemon) => {
       const card = $('<div></div>');
@@ -221,57 +221,45 @@ $(document).ready(function() {
     const storedTheme = localStorage.getItem('theme');
     if (storedTheme === 'dark') {
       htmlElement.addClass('dark');
-      // Update button text/icon if needed, e.g., themeToggleButton.text('Light Mode');
     } else {
-      htmlElement.removeClass('dark'); // Default to light if no preference or 'light'
-      // Update button text/icon if needed, e.g., themeToggleButton.text('Dark Mode');
+      htmlElement.removeClass('dark'); 
     }
   }
 
-  // Apply theme on initial load
   applyInitialTheme();
 
   themeToggleButton.on("click", function() {
     htmlElement.toggleClass('dark');
     if (htmlElement.hasClass('dark')) {
       localStorage.setItem('theme', 'dark');
-      // Update button text/icon if needed, e.g., $(this).text('Light Mode');
     } else {
       localStorage.setItem('theme', 'light');
-      // Update button text/icon if needed, e.g., $(this).text('Dark Mode');
     }
   });
 
-  // Set initial display based on default difficulty
   applyDifficultySettings(); 
 
   startGameBtn.addEventListener("click", () => {
-    applyDifficultySettings(); // Ensure latest selection is used
+    applyDifficultySettings();
     startup();
   });
 
   resetGameBtn.addEventListener("click", () => {
-    applyDifficultySettings(); // Ensure latest selection is used for reset
+    applyDifficultySettings();
     startup();
   });
 
   difficultySelect.addEventListener("change", () => {
     applyDifficultySettings();
-    // Optionally, you could auto-start the game here, or just update settings for next Start/Reset
-    // For now, let's just update the settings and the user can click Start/Reset.
-    // If you want it to auto-restart:
-    // loadPokemonAndSetupGame(); 
-    // Clear the game board if not auto-restarting:
     document.getElementById("game_grid").innerHTML = "<p>Select difficulty and click Start Game.</p>";
-    if(timerId) clearInterval(timerId); // Stop timer if running
-    gameOver = true; // Effectively stop current game interactions
+    if(timerId) clearInterval(timerId); 
+    gameOver = true; 
     gameBusy = true;
-    updateStatsDisplay(); // Show initial stats for new difficulty
+    updateStatsDisplay(); 
 
   });
   
   $("#power-up-btn").on("click", function() {
-    // Check if game is active, power-up not used, cards exist, and not all cards already matched
     if (gameOver || gameBusy || powerUpUsedThisGame || $(".card").length === 0 || ($(".card.matched").length === currentTotalPairs * 2 && currentTotalPairs > 0) ) {
       return;
     }
@@ -279,27 +267,21 @@ $(document).ready(function() {
     powerUpUsedThisGame = true;
     $(this).prop("disabled", true);
 
-    const wasGameBusy = gameBusy; // Store previous busy state
-    gameBusy = true; // Prevent other interactions during peek
+    const wasGameBusy = gameBusy; 
+    gameBusy = true; 
 
-    // Select cards that are not matched and not already flipped by the user's current turn
     const cardsToPeek = $(".card:not(.matched):not(.flip)");
-    cardsToPeek.addClass("flip"); // Reveal them
+    cardsToPeek.addClass("flip"); 
 
     setTimeout(function() {
-      // Flip them back
       cardsToPeek.each(function() {
-        // Only flip back if it didn't get matched during the peek (highly unlikely but safe)
-        // And ensure it's not a card the user is currently interacting with (already covered by :not(.flip) initially)
         if (!$(this).hasClass("matched")) { 
           $(this).removeClass("flip");
         }
       });
-      gameBusy = wasGameBusy; // Restore previous busy state
-    }, 1000); // 1 second peek duration
+      gameBusy = wasGameBusy; 
+    }, 1000); 
   });
 
-  // Initial message in game grid
   document.getElementById("game_grid").innerHTML = "<p>Select difficulty and click Start Game.</p>";
-  // loadPokemonAndSetupGame(); // Game no longer starts automatically
 });
